@@ -1,0 +1,6 @@
+# idea files
+.vscode
+.idea
+
+# db
+db.sqlite3
