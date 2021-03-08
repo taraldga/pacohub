@@ -1,58 +1,36 @@
 from django.db import models
 from django.contrib.auth.models import User
+from common.models import BaseModel
 
 # Create your models here.
 
 
-class Field(models.Model):
+class Field(BaseModel):
     name = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    created_by = models.ForeignKey(to=User, on_delete=models.DO_NOTHING)
-    updated_by = models.ForeignKey(to=User, on_delete=models.DO_NOTHING)
+    city = models.TextField()
+
+    def __str__(self):
+        return self.name
 
 
-class Hole(models.Model):
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    created_by = models.ForeignKey(to=User, on_delete=models.DO_NOTHING)
-    updated_by = models.ForeignKey(to=User, on_delete=models.DO_NOTHING)
-
+class Hole(BaseModel):
     field = models.ForeignKey(Field, on_delete=models.CASCADE, related_name="holes")
     number = models.IntegerField()
     par = models.IntegerField()
 
 
-class Game(models.Model):
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    created_by = models.ForeignKey(to=User, on_delete=models.DO_NOTHING)
-    updated_by = models.ForeignKey(to=User, on_delete=models.DO_NOTHING)
-
+class Game(BaseModel):
     isFinished = models.BooleanField(default=False)
     field = models.ForeignKey(Field, on_delete=models.DO_NOTHING, related_name="games")
 
 
-class Player(models.Model):
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    created_by = models.ForeignKey(to=User, on_delete=models.DO_NOTHING)
-    updated_by = models.ForeignKey(to=User, on_delete=models.DO_NOTHING)
-
+class Player(BaseModel):
     user = models.OneToOneField(to=User, null=True, on_delete=models.CASCADE)
     name = models.TextField(null=True)
     game = models.ForeignKey(to=Game, on_delete=models.CASCADE)
 
 
-class Score(models.Model):
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    created_by = models.ForeignKey(to=User, on_delete=models.DO_NOTHING)
-    updated_by = models.ForeignKey(to=User, on_delete=models.DO_NOTHING)
-
+class Score(BaseModel):
     par = models.IntegerField()
     score = models.IntegerField()
     hole = models.ForeignKey(to=Hole, on_delete=models.DO_NOTHING, related_name="scores")
