@@ -1,8 +1,10 @@
+from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from pacount.models import Field
-from pacount.serializers import FieldSerializer, FieldListSerializer
+from pacount.models import Field, Game
+from pacount.serializers import FieldSerializer, FieldListSerializer, GameSerializer
+from rest_framework import status
 
 
 class HelloView(APIView):
@@ -19,3 +21,24 @@ class FieldList(APIView):
         fields = Field.objects.all()
         serializer = FieldListSerializer(fields, many=True)
         return Response(serializer.data)
+
+
+class GameView(APIView):
+    def get_object(self, pk):
+        try:
+            return Game.objects.get(pk=pk)
+        except Game.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        game = self.get_object(pk)
+        serializer = GameSerializer(game)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        serializer = GameSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

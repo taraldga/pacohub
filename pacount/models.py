@@ -22,12 +22,12 @@ class Hole(BaseModel):
 class Game(BaseModel):
     isFinished = models.BooleanField(default=False)
     field = models.ForeignKey(Field, on_delete=models.DO_NOTHING, related_name="games")
+    playerNames = models.TextField(null=True)
 
 
 class Player(BaseModel):
     user = models.OneToOneField(to=User, null=True, on_delete=models.CASCADE)
     name = models.TextField(null=True)
-    game = models.ForeignKey(to=Game, on_delete=models.CASCADE)
 
 
 class Score(BaseModel):
@@ -35,6 +35,13 @@ class Score(BaseModel):
     score = models.IntegerField()
     hole = models.ForeignKey(to=Hole, on_delete=models.DO_NOTHING, related_name="scores")
     player = models.ForeignKey(to=Player, on_delete=models.CASCADE, related_name="scores", null=True)
+    player_name = models.TextField(null=True)
+    game = models.ForeignKey(to=Game, on_delete=models.CASCADE, related_name="scores")
 
     is_saved = models.BooleanField(default=False)
 
+
+class CreateGameRequest:
+    field_id = 0
+    player_ids = []
+    player_names = []
