@@ -4,3 +4,10 @@
 
 # db
 db.sqlite3
+
+venv
+Lib
+__pycache__/
+Scripts
+pacohub.egg-info/
+pyvenv.cfg
