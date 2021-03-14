@@ -2,9 +2,9 @@ from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from pacount.models import Field, Game
-from pacount.serializers import FieldSerializer, FieldListSerializer, GameSerializer
-from rest_framework import status
+from pacount.models import Field, Game, Score
+from pacount.serializers import ScoreSerializer, FieldListSerializer, GameSerializer
+from rest_framework import status, generics
 
 
 class HelloView(APIView):
@@ -15,12 +15,16 @@ class HelloView(APIView):
         return Response(content)
 
 
-
 class FieldList(APIView):
     def get(self, request, format=None):
         fields = Field.objects.all()
         serializer = FieldListSerializer(fields, many=True)
         return Response(serializer.data)
+
+
+class ScoreView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Score.objects.all()
+    serializer_class = ScoreSerializer
 
 
 class GameView(APIView):

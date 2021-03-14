@@ -20,6 +20,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['first_name', 'last_name']
 
+
 class PlayerSerializer(serializers.ModelSerializer):
     user = UserSerializer()
 
@@ -33,7 +34,7 @@ class ScoreSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Score
-        fields = ['par', 'score', 'player', 'player_name']
+        fields = ['id', 'par', 'score', 'player', 'player_name']
 
 
 class FieldSerializer(serializers.ModelSerializer):
