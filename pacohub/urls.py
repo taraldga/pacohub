@@ -17,10 +17,12 @@ from django.contrib import admin
 from django.urls import path, include
 from pacount import views
 from rest_framework.authtoken.views import obtain_auth_token
+from django.views.decorators.csrf import csrf_exempt
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('hello/', views.HelloView.as_view(), name='hello'),
     path('login/', obtain_auth_token, name='api_token_auth'),
-    path('pacount/', include('pacount.urls'))
+    path('pacount/', include('pacount.urls')),
+    path('users/', include('users.urls'))
 ]
