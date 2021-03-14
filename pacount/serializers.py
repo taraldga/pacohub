@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from pacount.models import Field, Hole, CreateGameRequest, Game, Player, Score
+from pacount.models import Field, Hole, Game, Player, Score
 
 
 class HoleSerializer(serializers.ModelSerializer):
@@ -18,7 +18,7 @@ class FieldListSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name']
+        fields = ['id', 'first_name', 'last_name']
 
 
 class PlayerSerializer(serializers.ModelSerializer):
@@ -30,11 +30,11 @@ class PlayerSerializer(serializers.ModelSerializer):
 
 
 class ScoreSerializer(serializers.ModelSerializer):
-    player = PlayerSerializer(read_only=True)
+    user = UserSerializer(read_only=True)
 
     class Meta:
         model = Score
-        fields = ['id', 'par', 'score', 'player', 'player_name']
+        fields = ['id', 'par', 'score', 'user', 'player_name']
 
 
 class FieldSerializer(serializers.ModelSerializer):
@@ -51,13 +51,13 @@ class GameSerializer(serializers.Serializer):
     scores = ScoreSerializer(many=True, read_only=True)
 
     field_id = serializers.IntegerField(write_only=True)
-    player_ids = serializers.ListField(child=serializers.IntegerField(), required=False)
-    player_names = serializers.ListField(child=serializers.CharField(), allow_null=True)
+    user_ids = serializers.ListField(child=serializers.IntegerField(), required=False)
+    player_names = serializers.ListField(child=serializers.CharField(), required=False)
 
     is_finished = serializers.BooleanField(allow_null=True, read_only=True)
 
     def create(self, validated_data):
-        player_ids = validated_data.pop('player_ids', [])
+        user_ids = validated_data.pop('user_ids', [])
         player_names = validated_data.pop('player_names', [])
         field_id = validated_data.get('field_id')
         field = Field.objects.get(pk=field_id)
@@ -73,16 +73,18 @@ class GameSerializer(serializers.Serializer):
                     par=hole.par,
                     score=0
                 ))
-            for player_id in player_ids:
+            for user_id in user_ids:
                 try:
-                    player = Player.objects.get(pk=player_id)
+                    user = User.objects.get(pk=user_id)
                     scores.append(Score.objects.create(
                         game=game,
-                        player=player,
+                        user=user,
                         hole=hole,
                         par=hole.par,
                         score=0
                     ))
                 except Player.DoesNotExist:
+                    print("player not found")
                     pass
+
         return game

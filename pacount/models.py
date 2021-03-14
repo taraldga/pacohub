@@ -34,7 +34,7 @@ class Score(BaseModel):
     par = models.IntegerField()
     score = models.IntegerField()
     hole = models.ForeignKey(to=Hole, on_delete=models.DO_NOTHING, related_name="scores")
-    player = models.ForeignKey(to=Player, on_delete=models.CASCADE, related_name="scores", null=True)
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name="scores", null=True)
     player_name = models.TextField(null=True)
     game = models.ForeignKey(to=Game, on_delete=models.CASCADE, related_name="scores")
 
