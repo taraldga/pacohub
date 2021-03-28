@@ -54,7 +54,7 @@ class GameSerializer(serializers.Serializer):
     user_ids = serializers.ListField(child=serializers.IntegerField(), required=False)
     player_names = serializers.ListField(child=serializers.CharField(), required=False)
 
-    is_finished = serializers.BooleanField(allow_null=True, read_only=True)
+    is_finished = serializers.BooleanField(required=False)
 
     def create(self, validated_data):
         user_ids = validated_data.pop('user_ids', [])
@@ -88,3 +88,8 @@ class GameSerializer(serializers.Serializer):
                     pass
 
         return game
+
+    def update(self, instance, validated_data):
+        instance.is_finished = validated_data['is_finished']
+        instance.save()
+        return instance
