@@ -25,7 +25,7 @@ SECRET_KEY = '#18st8=n0je$a&v&(++ay7al$#!zq^x988a=j9v+dfw5p!&-sd'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['taraldga.pythonanywhere.com', '127.0.0.1']
+ALLOWED_HOSTS = ['taraldga.pythonanywhere.com', '127.0.0.1', '188.166.77.36']
 
 
 # Application definition
@@ -83,8 +83,12 @@ WSGI_APPLICATION = 'pacohub.wsgi.application'
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': 'db',
+        'PORT': 5432,
     }
 }
 # Password validation
