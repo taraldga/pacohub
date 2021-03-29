@@ -3,6 +3,12 @@ from rest_framework import serializers
 from pacount.models import Field, Hole, Game, Player, Score
 
 
+class ShallowHoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Hole
+        fields = ['number']
+
+
 class HoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Hole
@@ -31,10 +37,18 @@ class PlayerSerializer(serializers.ModelSerializer):
 
 class ScoreSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
+    hole = ShallowHoleSerializer(read_only=True)
 
     class Meta:
         model = Score
-        fields = ['id', 'par', 'score', 'user', 'player_name']
+        fields = ['id', 'par', 'score', 'user', 'player_name', "hole"]
+
+
+class ShallowScoreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Score
+        fields = ('id', 'score')
+
 
 
 class FieldSerializer(serializers.ModelSerializer):
@@ -43,6 +57,14 @@ class FieldSerializer(serializers.ModelSerializer):
     class Meta:
         model = Field
         fields = ['name', 'holes']
+
+
+class GameListSerializer(serializers.ModelSerializer):
+    field = FieldListSerializer()
+
+    class Meta:
+        model = Game
+        fields = ["created_at", "playerNames", "field"]
 
 
 class GameSerializer(serializers.Serializer):
@@ -58,12 +80,12 @@ class GameSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         user_ids = validated_data.pop('user_ids', [])
-        player_names = validated_data.pop('player_names', [])
         field_id = validated_data.get('field_id')
         field = Field.objects.get(pk=field_id)
 
         game = Game.objects.create(field=field)
         scores = []
+        player_names = ""
         for hole in field.holes.all():
             for player_name in player_names:
                 scores.append(Score.objects.create(
@@ -73,6 +95,7 @@ class GameSerializer(serializers.Serializer):
                     par=hole.par,
                     score=0
                 ))
+                player_names += player_name + ";"
             for user_id in user_ids:
                 try:
                     user = User.objects.get(pk=user_id)
@@ -83,10 +106,12 @@ class GameSerializer(serializers.Serializer):
                         par=hole.par,
                         score=0
                     ))
+                    player_name = user.first_name + " " + user.last_name
+                    player_names += player_name + ";"
                 except Player.DoesNotExist:
                     print("player not found")
                     pass
-
+        game.playerNames = player_names
         return game
 
     def update(self, instance, validated_data):
