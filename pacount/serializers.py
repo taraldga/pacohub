@@ -18,7 +18,7 @@ class HoleSerializer(serializers.ModelSerializer):
 class FieldListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Field
-        fields = ['name', 'city']
+        fields = ['id', 'name', 'city']
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -81,37 +81,41 @@ class GameSerializer(serializers.Serializer):
     def create(self, validated_data):
         user_ids = validated_data.pop('user_ids', [])
         field_id = validated_data.get('field_id')
+        player_names = validated_data.get('player_names')
         field = Field.objects.get(pk=field_id)
 
         game = Game.objects.create(field=field)
+        users = []
+
+        for user_id in user_ids:
+            try:
+                user = User.objects.get(pk=user_id)
+                users.append(user)
+            except Player.DoesNotExist:
+                print("player not found")
+                pass
+
         scores = []
-        player_names = ""
         for hole in field.holes.all():
             for player_name in player_names:
-                scores.append(Score.objects.create(
+                score = Score(
                     game=game,
                     player_name=player_name,
                     hole=hole,
                     par=hole.par,
                     score=0
-                ))
-                player_names += player_name + ";"
-            for user_id in user_ids:
-                try:
-                    user = User.objects.get(pk=user_id)
-                    scores.append(Score.objects.create(
-                        game=game,
-                        user=user,
-                        hole=hole,
-                        par=hole.par,
-                        score=0
-                    ))
-                    player_name = user.first_name + " " + user.last_name
-                    player_names += player_name + ";"
-                except Player.DoesNotExist:
-                    print("player not found")
-                    pass
-        game.playerNames = player_names
+                )
+                scores.append(score)
+            for user in users:
+                score = Score(
+                    game=game,
+                    user=user,
+                    hole=hole,
+                    par=hole.par,
+                    score=0
+                )
+                scores.append(score)
+        Score.objects.bulk_create(scores)
         return game
 
     def update(self, instance, validated_data):
